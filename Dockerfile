@@ -77,3 +77,10 @@ echo "**** cleanup ****" && \
  rm -rf \
 	/tmp/* \
 	/root/.cache
+
+# add local files
+COPY root/ /
+
+# ports and volumes
+EXPOSE 80 443
+VOLUME /config
