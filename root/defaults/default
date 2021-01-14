@@ -21,6 +21,7 @@ server {
                 include          /etc/nginx/fastcgi_params;
 		        fastcgi_pass 127.0.0.1:9000;
                 fastcgi_param SCRIPT_FILENAME $document_root$phpfile;
+                fastcgi_param SIMPLESAMLPHP_CONFIG_DIR /config/simplesamlphp/config;
 
                 # Must be prepended with the baseurlpath
                 fastcgi_param SCRIPT_NAME /simplesaml$phpfile;
