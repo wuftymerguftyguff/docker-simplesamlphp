@@ -19,6 +19,18 @@ do
 	fi
 done
 
+# Set non default admin password of required
+cfgfile=${tgt}/config.php
+pattern="'auth.adminpassword' => '123',"
+
+if grep -q "$pattern" "$cfgfile"
+then
+ 	echo Found Default Password 
+	newpass=$(LC_CTYPE=C tr -c -d '0123456789abcdefghijklmnopqrstuvwxyz' </dev/urandom | dd bs=12 count=1 2>/dev/null;echo)
+	newpattern="'auth.adminpassword' => '$newpass',"
+	echo Setting New Password to $newpass in $cfgfile
+	perl -pi -e "s/$pattern/$newpattern/" $cfgfile
+fi
 
 # permissions
 chown -R abc:abc \
