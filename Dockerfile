@@ -72,4 +72,8 @@ echo "**** Install simplesaml php ****" && \
  tar xvzf \
 	/tmp/simplesamlphp.tar.gz -C \
 	/var && \
- ln -s /var/simplesamlphp-* /var/simplesamlphp
+ ln -s /var/simplesamlphp-* /var/simplesamlphp && \
+echo "**** cleanup ****" && \
+ rm -rf \
+	/tmp/* \
+	/root/.cache
