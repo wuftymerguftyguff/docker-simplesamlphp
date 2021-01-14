@@ -1,0 +1,27 @@
+#!/usr/bin/with-contenv bash
+
+tgt="/config/simplesamlphp/config"
+src="/var/simplesamlphp/config"
+
+# make our folders
+mkdir -p \
+	$tgt	
+
+for fyle in $(ls -1 $src)
+do
+	
+	if [[ ! -f ${tgt}/${fyle} ]] 
+	then
+		echo cp ${src}/${fyle} ${tgt}/${fyle} 
+		cp ${src}/${fyle} ${tgt}/${fyle} 
+	else
+		echo ${tgt}/${fyle} exists skipping copy from ${src}/${fyle}
+	fi
+done
+
+
+# permissions
+chown -R abc:abc \
+	/config 
+chmod -R g+w \
+	/config/simplesamlphp
