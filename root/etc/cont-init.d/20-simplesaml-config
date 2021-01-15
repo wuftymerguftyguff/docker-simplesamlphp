@@ -96,6 +96,14 @@ pattern="'metadatadir' => 'metadata',"
 newpattern="'metadatadir' => '$pkgcfgroot/metadata',"
 replace_in_file "$cfgfile" "$pattern" "$newpattern"
 
+# Set baseurlpath for reverse proxy etc
+[[ ! -z "$BASEURLPATH" ]] && { 
+	cfgfile="$pkgcfgroot/config/config.php"
+	pattern="'baseurlpath' => 'simplesaml/',"
+	newpattern="'baseurlpath' => '$BASEURLPATH',"
+	replace_in_file "$cfgfile" "$pattern" "$newpattern"
+}
+
 
 # permissions
 chown -R abc:abc \

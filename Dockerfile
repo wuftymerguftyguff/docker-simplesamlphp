@@ -1,5 +1,7 @@
 FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.12
 
+ENV BASEURLPATH ${1:+1}
+
 RUN \
  echo "**** install runtime packages ****" && \
  apk add --no-cache --upgrade \
