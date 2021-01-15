@@ -1,15 +1,14 @@
 #!/usr/bin/with-contenv bash
 
-tgt="/config/simplesamlphp/config"
-src="/var/simplesamlphp/config"
+#base setup
+cfgroot="/config"
+pkgname="simplesamlphp"
 
-# make our folders
-mkdir -p \
-	$tgt	
-
+function copy_default_files {
+local src="$1"
+local tgt="$2"
 for fyle in $(ls -1 $src)
 do
-	
 	if [[ ! -f ${tgt}/${fyle} ]] 
 	then
 		echo cp ${src}/${fyle} ${tgt}/${fyle} 
@@ -18,19 +17,52 @@ do
 		echo ${tgt}/${fyle} exists skipping copy from ${src}/${fyle}
 	fi
 done
+}
 
-# Set non default admin password of required
-cfgfile=${tgt}/config.php
-pattern="'auth.adminpassword' => '123',"
-
+function replace_in_file {
+local cfgfile="$1"
+local pattern="$2"
+local newpattern="$3"
 if grep -q "$pattern" "$cfgfile"
 then
- 	echo Found Default Password 
-	newpass=$(LC_CTYPE=C tr -c -d '0123456789abcdefghijklmnopqrstuvwxyz' </dev/urandom | dd bs=12 count=1 2>/dev/null;echo)
-	newpattern="'auth.adminpassword' => '$newpass',"
-	echo Setting New Password to $newpass in $cfgfile
+ 	echo Found Pattern $pattern in file $cfgfile 
+	echo Changing $pattern to $newpattern in $cfgfile
 	perl -pi -e "s/$pattern/$newpattern/" $cfgfile
 fi
+}
+
+
+#create required folders
+folders="config"
+
+for folder in "$folders"
+do
+	tgtfolder="$cfgroot/$pkgname/$folder"
+	if [[ ! -d $tgtfolder ]]
+	then
+		echo $tgtfolder does not exist Creating.
+		mkdir -p "$tgtfolder"
+		
+	else
+		echo $tgtfolder exists, Skipping.
+	fi
+	unset tgtfolder
+done
+
+#Copy default config
+copy_default_files "/var/simplesamlphp/config" "/config/simplesamlphp/config"
+
+
+# Set non default admin password if required
+cfgfile="/config/simplesamlphp/config/config.php"
+pattern="'auth.adminpassword' => '123',"
+newpass=$(LC_CTYPE=C tr -c -d '0123456789abcdefghijklmnopqrstuvwxyz' </dev/urandom | dd bs=12 count=1 2>/dev/null;echo)
+newpattern="'auth.adminpassword' => '$newpass',"
+replace_in_file "$cfgfile" "$pattern" "$newpattern"
+
+
+# Set non standard secret salt if required
+
 
 # permissions
 chown -R abc:abc \
