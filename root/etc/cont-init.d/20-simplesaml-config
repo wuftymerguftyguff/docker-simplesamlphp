@@ -3,6 +3,8 @@
 #base setup
 cfgroot="/config"
 pkgname="simplesamlphp"
+pkgcfgroot="$cfgroot/$pkgname"
+
 
 function copy_default_files {
 local src="$1"
@@ -27,15 +29,17 @@ if grep -q "$pattern" "$cfgfile"
 then
  	echo Found Pattern $pattern in file $cfgfile 
 	echo Changing $pattern to $newpattern in $cfgfile
-	perl -pi -e "s/$pattern/$newpattern/" $cfgfile
+	local pattesc=$(echo $pattern | sed 's_/_\\/_g')
+	local newesc=$(echo $newpattern | sed 's_/_\\/_g')
+	perl -pi -e "s/$pattesc/$newesc/"  $cfgfile
 fi
 }
 
 
 #create required folders
-folders="config"
+folders="config cert log data metadata"
 
-for folder in "$folders"
+for folder in $folders
 do
 	tgtfolder="$cfgroot/$pkgname/$folder"
 	if [[ ! -d $tgtfolder ]]
@@ -50,11 +54,11 @@ do
 done
 
 #Copy default config
-copy_default_files "/var/simplesamlphp/config" "/config/simplesamlphp/config"
+copy_default_files "/var/simplesamlphp/config" "$pkgcfgroot/config"
 
 
 # Set non default admin password if required
-cfgfile="/config/simplesamlphp/config/config.php"
+cfgfile="$pkgcfgroot/config/config.php"
 pattern="'auth.adminpassword' => '123',"
 newpass=$(LC_CTYPE=C tr -c -d '0123456789abcdefghijklmnopqrstuvwxyz' </dev/urandom | dd bs=12 count=1 2>/dev/null;echo)
 newpattern="'auth.adminpassword' => '$newpass',"
@@ -62,10 +66,34 @@ replace_in_file "$cfgfile" "$pattern" "$newpattern"
 
 
 # Set non standard secret salt if required
-cfgfile="/config/simplesamlphp/config/config.php"
+cfgfile="$pkgcfgroot/config/config.php"
 pattern="'secretsalt' => 'defaultsecretsalt',"
 newsalt=$(LC_CTYPE=C tr -c -d '0123456789abcdefghijklmnopqrstuvwxyz' </dev/urandom | dd bs=32 count=1 2>/dev/null;echo)
 newpattern="'secretsalt' => '$newsalt',"
+replace_in_file "$cfgfile" "$pattern" "$newpattern"
+
+# Set cert path to container storage
+cfgfile="$pkgcfgroot/config/config.php"
+pattern="'certdir' => 'cert/',"
+newpattern="'certdir' => '$pkgcfgroot/cert/'," 
+replace_in_file "$cfgfile" "$pattern" "$newpattern"
+
+# Set logging path to container storage
+cfgfile="$pkgcfgroot/config/config.php"
+pattern="'loggingdir' => 'log/',"
+newpattern="'loggingdir' => '$pkgcfgroot/log/',"
+replace_in_file "$cfgfile" "$pattern" "$newpattern"
+
+# Set datadir path to container storage
+cfgfile="$pkgcfgroot/config/config.php"
+pattern="'datadir' => 'data/',"
+newpattern="'datadir' => '$pkgcfgroot/data/',"
+replace_in_file "$cfgfile" "$pattern" "$newpattern"
+
+# Set metadatadir path to container storage
+cfgfile="$pkgcfgroot/config/config.php"
+pattern="'metadatadir' => 'metadata',"
+newpattern="'metadatadir' => '$pkgcfgroot/metadata',"
 replace_in_file "$cfgfile" "$pattern" "$newpattern"
 
 
@@ -73,4 +101,4 @@ replace_in_file "$cfgfile" "$pattern" "$newpattern"
 chown -R abc:abc \
 	/config 
 chmod -R g+w \
-	/config/simplesamlphp
+	$pkgcfgroot	
