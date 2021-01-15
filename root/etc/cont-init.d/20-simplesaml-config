@@ -62,6 +62,11 @@ replace_in_file "$cfgfile" "$pattern" "$newpattern"
 
 
 # Set non standard secret salt if required
+cfgfile="/config/simplesamlphp/config/config.php"
+pattern="'secretsalt' => 'defaultsecretsalt',"
+newsalt=$(LC_CTYPE=C tr -c -d '0123456789abcdefghijklmnopqrstuvwxyz' </dev/urandom | dd bs=32 count=1 2>/dev/null;echo)
+newpattern="'secretsalt' => '$newsalt',"
+replace_in_file "$cfgfile" "$pattern" "$newpattern"
 
 
 # permissions
