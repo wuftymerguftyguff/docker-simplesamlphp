@@ -56,6 +56,9 @@ done
 #Copy default config
 copy_default_files "/var/simplesamlphp/config" "$pkgcfgroot/config"
 
+#Copy Default metadata
+copy_default_files "/var/simplesamlphp/metadata" "$pkgcfgroot/metadata"
+
 
 # Set non default admin password if required
 cfgfile="$pkgcfgroot/config/config.php"
